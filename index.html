@@ -4,54 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portfolio SIP Calculator</title>
-
 <style>
 *{box-sizing:border-box;font-family:Arial,sans-serif;}
 body{margin:0;background:#f5f7fb;color:#1f2937;}
-
-/* Header */
 header{background:#fff;padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;}
 .header-inner{max-width:1100px;margin:auto;display:flex;align-items:center;gap:0.6rem;}
 .logo{width:36px;height:36px;background:#00b386;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:1.1rem;}
 .header-text h1{margin:0;font-size:1.4rem;font-weight:800;}
 .header-text p{margin:0;font-size:0.85rem;color:#6b7280;}
-
-/* Container & card */
 .container{max-width:1000px;margin:auto;padding:1.2rem;}
 .card{background:#fff;border-radius:12px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 8px 20px rgba(0,0,0,0.08);}
 h3{margin-top:0;font-weight:800;}
-
-/* Form row */
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.8rem;}
 input,button{padding:0.7rem;border-radius:8px;border:1px solid #d1d5db;font-size:1rem;}
 button{background:#00b386;color:#fff;border:none;font-weight:700;cursor:pointer;}
 button:hover{background:#00966f;}
-
-/* Table */
-table{width:100%;border-collapse:collapse;}
-th,td{padding:0.7rem;border-bottom:1px solid #e5e7eb;}
+table{width:100%;border-collapse:collapse;margin-top:1rem;}
+th,td{padding:0.7rem;border-bottom:1px solid #e5e7eb;text-align:center;}
 th{background:#f0fdf9;font-weight:800;font-size:0.95rem;}
-td input{width:100%;border:none;background:transparent;font-size:0.95rem;font-weight:700;}
+td input{width:100%;border:none;background:transparent;font-size:0.95rem;font-weight:700;text-align:center;}
 td input:focus{outline:none;background:#f9fafb;border-radius:6px;}
 .delete{background:#dc2626;padding:0.4rem 0.6rem;font-size:0.85rem;}
 .delete:hover{background:#b91c1c;}
-
-/* Result */
 .result{margin-top:1rem;}
 .result div{display:flex;justify-content:space-between;padding:0.6rem 0;font-size:1.05rem;}
 .result strong{font-weight:800;}
 .result .total{font-size:1.6rem;font-weight:900;color:#111827;}
-
-/* Footer */
 footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
-
-/* Mobile */
 @media(max-width:600px){.header-text h1{font-size:1.2rem}}
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <header>
   <div class="header-inner">
     <div class="logo">₹</div>
@@ -64,18 +48,38 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
 
 <div class="container">
 
+
+
 <!-- Add Investment -->
 <div class="card">
   <h3>Add Investment</h3>
+
+  <!-- Column Labels -->
+  <div class="row" style="font-weight:700;text-align:center;margin-bottom:0.5rem;">
+    <div>Instrument Name</div>
+    <div>Monthly SIP (₹)</div>
+    <div>Interest Rate %</div>
+    <div>Current Value (₹)</div>
+    <div></div>
+  </div>
+
+  <!-- Input Row -->
   <div class="row">
     <input id="name" value="Mutual Fund 1" placeholder="Instrument Name">
     <input id="sip" type="number" value="10000" placeholder="Monthly SIP (₹)">
-    <input id="rate" type="number" value="12" placeholder="Return (%)">
+    <input id="rate" type="number" value="12" placeholder="Interest Rate (%)">
     <input id="current" type="number" value="0" placeholder="Current Value (₹)">
     <button onclick="add()">Add</button>
   </div>
 </div>
-
+  
+<!-- Years Input -->
+<div class="card">
+  <h3>Investment Period(Years)</h3>
+  <div class="row">
+    <input id="years" type="number" value="5" placeholder="Years">
+  </div>
+</div>
 <!-- Portfolio Table -->
 <div class="card">
   <h3>Your Portfolio</h3>
@@ -84,23 +88,20 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
       <tr>
         <th>Instrument</th>
         <th>Monthly SIP (₹)</th>
-        <th>Return %</th>
+        <th>Interest Rate %</th>
         <th>Current Value (₹)</th>
+        <th>Final Value (₹)</th>
         <th></th>
       </tr>
     </thead>
     <tbody id="body"></tbody>
+    <tfoot id="summary"></tfoot>
   </table>
 </div>
 
-<!-- Calculation -->
+<!-- Final Calculation -->
 <div class="card">
   <h3>Final Calculation</h3>
-  <div class="row">
-    <input id="years" type="number" value="5" placeholder="Years">
-    <button onclick="calculate()">Calculate Portfolio</button>
-  </div>
-
   <div class="result">
     <div>
       <span>Invested Amount</span>
@@ -126,6 +127,17 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
 <script>
 let data=[];
 
+const name = document.getElementById("name");
+const sip = document.getElementById("sip");
+const rate = document.getElementById("rate");
+const current = document.getElementById("current");
+const years = document.getElementById("years");
+const body = document.getElementById("body");
+const summary = document.getElementById("summary");
+const invested = document.getElementById("invested");
+const profit = document.getElementById("profit");
+const total = document.getElementById("total");
+
 function add(){
   const n = name.value.trim() || "Mutual Fund";
   const s = +sip.value;
@@ -142,17 +154,50 @@ function add(){
 }
 
 function render(){
+  const y = +years.value || 1;
   body.innerHTML="";
+  let totalSip=0, totalCurr=0, totalFinal=0, totalRate=0;
+
   data.forEach((i,idx)=>{
+    const final = sipCalc(i.s,i.r,y) + i.c;
+    totalSip += i.s;
+    totalCurr += i.c;
+    totalFinal += final;
+    totalRate += i.r;
+
     body.innerHTML+=`
       <tr>
-        <td><input value="${i.n}" oninput="data[${idx}].n=this.value"></td>
-        <td><input type="number" value="${i.s}" oninput="data[${idx}].s=+this.value"></td>
-        <td><input type="number" value="${i.r}" oninput="data[${idx}].r=+this.value"></td>
-        <td><input type="number" value="${i.c}" oninput="data[${idx}].c=+this.value"></td>
+        <td><input value="${i.n}" oninput="data[${idx}].n=this.value; render()"></td>
+        <td><input type="number" value="${i.s}" oninput="data[${idx}].s=+this.value; render()"></td>
+        <td><input type="number" value="${i.r}" oninput="data[${idx}].r=+this.value; render()"></td>
+        <td><input type="number" value="${i.c}" oninput="data[${idx}].c=+this.value; render()"></td>
+        <td>${fmt(final)}</td>
         <td><button class="delete" onclick="del(${idx})">Delete</button></td>
       </tr>`;
   });
+
+  // Summary row
+  if(data.length>0){
+    const avgRate = totalRate/data.length;
+    summary.innerHTML=`
+      <tr style="font-weight:bold;background:#f0fdf9;">
+        <td>Total / Avg</td>
+        <td>${fmt(totalSip)}</td>
+        <td>${avgRate.toFixed(2)}</td>
+        <td>${fmt(totalCurr)}</td>
+        <td>${fmt(totalFinal)}</td>
+        <td></td>
+      </tr>`;
+  } else {
+    summary.innerHTML="";
+  }
+
+  // Final Calculation
+  const investedAmount = totalSip*12*y + totalCurr;
+  const totalValue = totalFinal;
+  invested.innerText = "₹" + fmt(investedAmount);
+  profit.innerText = "₹" + fmt(totalValue - investedAmount);
+  total.innerText = "₹" + fmt(totalValue);
 }
 
 function del(i){
@@ -160,42 +205,18 @@ function del(i){
   render();
 }
 
-// Groww-accurate SIP formula
 function sipCalc(sip, annualRate, years){
     const r = annualRate / 100;
     const n = years;
     return sip * ( Math.pow(1 + r, n) - 1 ) / (1 - Math.pow(1 + r, -1/12));
 }
 
-function calculate(){
-  const y = +years.value;
-  if(!y || data.length===0) return alert("Add investments");
-
-  let inv = 0, tot = 0;
-  data.forEach(i=>{
-    inv += i.s*12*y + i.c;
-    tot += sipCalc(i.s,i.r,y) + i.c;
-  });
-
-  invested.innerText="₹"+fmt(inv);
-  profit.innerText="₹"+fmt(tot - inv);
-  total.innerText="₹"+fmt(tot);
-}
-
 function fmt(n){
   return Math.round(n).toLocaleString("en-IN");
 }
 
-const name = document.getElementById("name");
-const sip = document.getElementById("sip");
-const rate = document.getElementById("rate");
-const current = document.getElementById("current");
-const years = document.getElementById("years");
-const body = document.getElementById("body");
-const invested = document.getElementById("invested");
-const profit = document.getElementById("profit");
-const total = document.getElementById("total");
+// Auto-update on years change
+years.addEventListener("input", render);
 </script>
-
 </body>
 </html>
