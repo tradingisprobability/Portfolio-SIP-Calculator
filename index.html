@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio SIP Calculator</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f5f7fb;
+  color:#1f2937;
+}
+
+/* ===== HEADER (GROWW STYLE) ===== */
+header{
+  background:#ffffff;
+  padding:1rem 1.5rem;
+  border-bottom:1px solid #e5e7eb;
+}
+
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  gap:0.6rem;
+}
+
+.logo{
+  width:36px;
+  height:36px;
+  background:#00b386;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:800;
+  font-size:1.1rem;
+}
+
+.header-text h1{
+  margin:0;
+  font-size:1.4rem;
+  font-weight:800;
+}
+
+.header-text p{
+  margin:0;
+  font-size:0.85rem;
+  color:#6b7280;
+}
+
+/* ===== CONTAINER ===== */
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:1.2rem;
+}
+
+/* ===== CARD ===== */
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:1.2rem;
+  margin-bottom:1rem;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+h3{
+  margin-top:0;
+  font-weight:800;
+}
+
+/* ===== FORM ===== */
+.row{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:0.8rem;
+}
+
+input,button{
+  padding:0.7rem;
+  border-radius:8px;
+  border:1px solid #d1d5db;
+  font-size:1rem;
+}
+
+button{
+  background:#00b386;
+  color:#fff;
+  border:none;
+  font-weight:700;
+  cursor:pointer;
+}
+button:hover{
+  background:#00966f;
+}
+
+/* ===== TABLE ===== */
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:0.7rem;
+  border-bottom:1px solid #e5e7eb;
+}
+
+th{
+  background:#f0fdf9;
+  font-weight:800;
+  font-size:0.95rem;
+}
+
+/* BOLD ROW VALUES */
+td input{
+  width:100%;
+  border:none;
+  background:transparent;
+  font-size:0.95rem;
+  font-weight:700;   /* 👈 BOLD VALUES */
+}
+
+td input:focus{
+  outline:none;
+  background:#f9fafb;
+  border-radius:6px;
+}
+
+/* DELETE */
+.delete{
+  background:#dc2626;
+  padding:0.4rem 0.6rem;
+  font-size:0.85rem;
+}
+.delete:hover{
+  background:#b91c1c;
+}
+
+/* ===== RESULT ===== */
+.result{
+  margin-top:1rem;
+}
+
+.result div{
+  display:flex;
+  justify-content:space-between;
+  padding:0.6rem 0;
+  font-size:1.05rem;
+}
+
+.result strong{
+  font-weight:800;
+}
+
+.result .total{
+  font-size:1.6rem;
+  font-weight:900;
+  color:#111827;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  text-align:center;
+  padding:1.2rem;
+  font-size:0.85rem;
+  color:#6b7280;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  .header-text h1{font-size:1.2rem}
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo">₹</div>
+    <div class="header-text">
+      <h1>Portfolio SIP Calculator</h1>
+      <p>Calculate Mutual Funds, PPF , Gold etc..</p>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ADD -->
+<div class="card">
+  <h3>Add Investment</h3>
+  <div class="row">
+    <input id="name" value="Mutual Fund 1" placeholder="Instrument Name">
+    <input id="sip" type="number" value="10000" placeholder="Monthly SIP (₹)">
+    <input id="rate" type="number" value="12" placeholder="Return (%)">
+    <button onclick="add()">Add</button>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="card">
+  <h3>Your Portfolio</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Instrument</th>
+        <th>Monthly SIP (₹)</th>
+        <th>Return %</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="body"></tbody>
+  </table>
+</div>
+
+<!-- CALC -->
+<div class="card">
+  <h3>Final Calculation</h3>
+  <div class="row">
+    <input id="years" type="number" value="5" placeholder="Years">
+    <button onclick="calculate()">Calculate Portfolio</button>
+  </div>
+
+  <div class="result">
+    <div>
+      <span>Invested Amount</span>
+      <strong id="invested">₹0</strong>
+    </div>
+    <div>
+      <span>Estimated Profit</span>
+      <strong id="profit">₹0</strong>
+    </div>
+    <div class="total">
+      <span>Total Value</span>
+      <strong id="total">₹0</strong>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  © 2025 Portfolio SIP Calculator · tradingisprobability@gmail.com
+</footer>
+
+<script>
+let data=[];
+
+function add(){
+  const n=name.value.trim()||"Mutual Fund";
+  const s=+sip.value;
+  const r=+rate.value;
+
+  if(s<=0||r<=0){
+    alert("SIP & Return must be greater than 0");
+    return;
+  }
+
+  data.push({n,s,r});
+  render();
+}
+
+function render(){
+  body.innerHTML="";
+  data.forEach((i,idx)=>{
+    body.innerHTML+=`
+      <tr>
+        <td><input value="${i.n}" oninput="data[${idx}].n=this.value"></td>
+        <td><input type="number" value="${i.s}" oninput="data[${idx}].s=+this.value"></td>
+        <td><input type="number" value="${i.r}" oninput="data[${idx}].r=+this.value"></td>
+        <td><button class="delete" onclick="del(${idx})">Delete</button></td>
+      </tr>`;
+  });
+}
+
+function del(i){
+  data.splice(i,1);
+  render();
+}
+
+function sipCalc(sip, annualRate, years){
+    const r = annualRate / 100;
+    const n = years;
+    const fv = sip * ( Math.pow(1 + r, n) - 1 ) / (1 - Math.pow(1 + r, -1/12));
+    return fv;
+}
+
+
+
+function calculate(){
+  const y=+years.value;
+  if(!y||!data.length)return alert("Add investments");
+
+  let inv=0,tot=0;
+  data.forEach(i=>{
+    inv+=i.s*12*y;
+    tot+=sipCalc(i.s,i.r,y);
+  });
+
+  invested.innerText="₹"+fmt(inv);
+  profit.innerText="₹"+fmt(tot-inv);
+  total.innerText="₹"+fmt(tot);
+}
+
+function fmt(n){
+  return n.toLocaleString("en-IN",{maximumFractionDigits:0});
+}
+
+const name=document.getElementById("name");
+const sip=document.getElementById("sip");
+const rate=document.getElementById("rate");
+const years=document.getElementById("years");
+const body=document.getElementById("body");
+const invested=document.getElementById("invested");
+const profit=document.getElementById("profit");
+const total=document.getElementById("total");
+</script>
+
+</body>
+</html>
