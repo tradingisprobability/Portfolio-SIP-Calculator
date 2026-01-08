@@ -55,6 +55,64 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
 .modal-content input{
   width:100%; padding:0.6rem; margin-bottom:0.6rem;
 }
+
+/* FIX: Prevent table from overflowing card on mobile */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Force table to be wider than mobile screen */
+.table-scroll table {
+  min-width: 720px;
+}
+
+/* Optional: better mobile touch */
+.table-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.table-scroll::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 6px;
+}
+
+  /* --- Add Investment Responsive Grid --- */
+
+.add-grid {
+  align-items: end;
+}
+
+/* Hide labels on desktop */
+.add-grid label {
+  display: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Mobile behavior */
+@media (max-width: 600px) {
+  .add-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Show labels on mobile */
+  .add-grid label {
+    display: block;
+  }
+
+  .add-grid input,
+  .add-grid button {
+    width: 100%;
+  }
+
+  .add-btn {
+    margin-top: 0.6rem;
+  }
+}
+
+
 </style>
 </head>
 <body>
@@ -78,23 +136,33 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
   <h3>Add Investment</h3>
 
   <!-- Column Labels -->
-  <div class="row" style="font-weight:700;text-align:center;margin-bottom:0.5rem;">
-    <div>Instrument Name</div>
-    <div>Monthly SIP (₹)</div>
-    <div>Interest Rate %</div>
-    <div>Current Value (₹)</div>
-    <div></div>
+  <div class="row add-grid">
+  <div class="field">
+    <label>Instrument Name</label>
+    <input id="name" value="Mutual Fund 1" placeholder="Instrument Name">
   </div>
 
-  <!-- Input Row -->
-  <div class="row">
-    <input id="name" value="Mutual Fund 1" placeholder="Instrument Name">
-    <input id="sip" type="number" value="10000" placeholder="Monthly SIP (₹)">
-    <input id="rate" type="number" value="12" placeholder="Interest Rate (%)">
-    <input id="current" type="number" value="0" placeholder="Current Value (₹)">
-    <button onclick="add()">Add</button>
+  <div class="field">
+    <label>Monthly SIP (₹)</label>
+    <input id="sip" type="number" value="10000" placeholder="Monthly SIP">
+  </div>
+
+  <div class="field">
+    <label>Interest Rate (%)</label>
+    <input id="rate" type="number" value="12" placeholder="Interest Rate">
+  </div>
+
+  <div class="field">
+    <label>Current Value (₹)</label>
+    <input id="current" type="number" value="0" placeholder="Current Value">
+  </div>
+
+  <div class="field">
+    <label>&nbsp;</label>
+    <button onclick="add()" class="add-btn">Add</button>
   </div>
 </div>
+  
 
 <!-- Years Input -->
 <div class="card">
@@ -106,7 +174,9 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
 <!-- Portfolio Table -->
 <div class="card">
   <h3>Your Portfolio</h3>
-  <table>
+
+  <div class="table-scroll">
+    <table>
     <thead>
       <tr>
         <th>Instrument</th>
@@ -120,6 +190,7 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
     <tbody id="body"></tbody>
     <tfoot id="summary"></tfoot>
   </table>
+  </div>
 </div>
 
 <!-- Final Calculation -->
