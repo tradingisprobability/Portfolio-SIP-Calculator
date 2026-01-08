@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E4GNS800X4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-E4GNS800X4');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portfolio SIP Calculator</title>
@@ -41,9 +32,31 @@ td input:focus{outline:none;background:#f9fafb;border-radius:6px;}
 .result .total{font-size:1.6rem;font-weight:900;color:#111827;}
 footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
 @media(max-width:600px){.header-text h1{font-size:1.2rem}}
+  *{box-sizing:border-box;font-family:Arial,sans-serif;}
+body{margin:0;background:#f5f7fb;color:#1f2937;}
+header{background:#fff;padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;}
+.container{max-width:1000px;margin:auto;padding:1.2rem;}
+.card{background:#fff;border-radius:12px;padding:1.2rem;margin-bottom:1rem;box-shadow:0 8px 20px rgba(0,0,0,0.08);}
+button{background:#00b386;color:#fff;border:none;padding:0.7rem 1.2rem;border-radius:8px;font-weight:700;cursor:pointer;}
+button:hover{background:#00966f;}
+footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
+
+/* --- modal --- */
+.modal{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.45);
+  display:none; align-items:center; justify-content:center;
+}
+.modal-content{
+  background:#fff; width:320px; padding:1.2rem;
+  border-radius:12px;
+}
+.modal-content h3{margin-top:0}
+.modal-content input{
+  width:100%; padding:0.6rem; margin-bottom:0.6rem;
+}
 </style>
 </head>
-
 <body>
 
 <header>
@@ -82,7 +95,7 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
     <button onclick="add()">Add</button>
   </div>
 </div>
-  
+
 <!-- Years Input -->
 <div class="card">
   <h3>Investment Period(Years)</h3>
@@ -127,13 +140,46 @@ footer{text-align:center;padding:1.2rem;font-size:0.85rem;color:#6b7280;}
     </div>
   </div>
 </div>
-
+<!-- SAVE BUTTON -->
+  <div class="card" style="text-align:center">
+    <button onclick="openSaveModal()">Save Portfolio</button>
+    <p style="font-size:0.85rem;color:#6b7280;margin-top:0.5rem">
+      Your details are used only to save this calculation.
+    </p>
+  </div>
+  <div class="card" style="text-align:center">
+  <button class="delete" onclick="clearPortfolio()">Clear Portfolio</button>
+  <p style="font-size:0.8rem;color:#6b7280;margin-top:0.4rem">
+    Clears portfolio data saved in this browser
+  </p>
+</div>
 </div>
 
 <footer>
   © 2025 Portfolio SIP Calculator · tradingisprobability@gmail.com
 </footer>
+<!-- SAVE MODAL -->
+<div class="modal" id="saveModal" onclick="backdropClose(event)">
+  <div class="modal-content">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3>Save Your SIP</h3>
+      <button onclick="closeSaveModal()"
+              style="background:none;color:#6b7280;font-size:1.4rem;padding:0;border:none;cursor:pointer">
+        &times;
+      </button>
+    </div>
 
+    <input id="email" type="email" placeholder="Email *">
+    <input id="whatsapp" placeholder="WhatsApp (optional)">
+    <input id="instagram" placeholder="Instagram (optional)">
+
+    <button onclick="savePortfolio()" style="width:100%">Save</button>
+  </div>
+
+</div>
+
+
+<script src="script.js"></script>
 <script>
 let data=[];
 
@@ -223,6 +269,21 @@ function sipCalc(sip, annualRate, years){
 
 function fmt(n){
   return Math.round(n).toLocaleString("en-IN");
+}
+function clearPortfolio(){
+  if(!confirm("This will clear your portfolio from this device. Continue?")){
+    return;
+  }
+
+  data = [];
+  localStorage.removeItem("savedSIP");
+
+  body.innerHTML = "";
+  summary.innerHTML = "";
+
+  invested.innerText = "₹0";
+  profit.innerText = "₹0";
+  total.innerText = "₹0";
 }
 
 // Auto-update on years change
